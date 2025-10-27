@@ -1,0 +1,23 @@
+# ============================================================
+# Cuadrito UNAL – Juego de Agentes Inteligentes (Equipo G1C)
+# Dependencias del entorno Python
+# Universidad Nacional de Colombia – 2025-II
+# ============================================================
+
+# ------------------------
+# Framework backend
+# ------------------------
+fastapi>=0.115.0
+uvicorn[standard]>=0.23.0
+
+# ------------------------
+# Utilidades y testing
+# ------------------------
+pydantic>=2.5.0
+httpx>=0.25.0     # Cliente HTTP útil para pruebas de endpoints
+pytest>=7.4.0      # Framework de testing opcional
+
+# ------------------------
+# Lógica del agente y simulaciones
+# ------------------------
+numpy>=1.26.0      # Para futuros cálculos heurísticos

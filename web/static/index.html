@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>🎮 Cuadrito UNAL - Juego de Agentes (G1C)</title>
+
+  <!-- ============================= -->
+  <!-- Librería Konekti del profesor -->
+  <!-- ============================= -->
+  <script src="https://jgomezpe.github.io/konekti/src/konekti.js"></script>
+
+  <!-- ============================= -->
+  <!-- Motor del juego (versión original del profesor) -->
+  <!-- ============================= -->
+  <script src="/static/squares.js"></script>
+
+  <!-- ============================= -->
+  <!-- Agente Inteligente G1C (tu versión JS) -->
+  <!-- ============================= -->
+  <script src="/static/smart_agent.js"></script>
+
+  <!-- ============================= -->
+  <!-- Configuración e interfaz Konekti -->
+  <!-- ============================= -->
+  <script>
+    Konekti.uses("header", "navbar", "canvas");
+
+    function KonektiMain() {
+      // Crear entorno del juego (clase Environment definida en squares.js)
+      const client = new Environment();
+
+      // Registrar los jugadores disponibles
+      client.setPlayers({
+        rand1: new RandomPlayer(),
+        rand2: new RandomPlayer(),
+        G1C: new SmartAgent() // 👈 tu agente inteligente
+      });
+
+      // Encabezado
+      Konekti.header(
+        "title",
+        "",
+        "🎮 Cuadrito UNAL – Juego de Agentes Inteligentes (Equipo G1C)",
+        3,
+        { class: "w3-black w3-center" }
+      );
+
+      // Mensaje inicial
+      Konekti.raw("log", "Seleccione jugadores y presione ▶️ Iniciar");
+
+      // =============================
+      // Barra de configuración superior
+      // =============================
+      const controles = [
+        {
+          plugin: "raw",
+          setup: [
+            "time",
+            "",
+            {
+              tag: "input",
+              width: "150px",
+              class: "w3-bar-item w3-input w3-border w3-round-xlarge",
+              placeholder: "⏱ Tiempo (segundos)",
+              style: "margin:4px;font-family:FontAwesome, Arial, Verdana, sans-serif;"
+            }
+          ]
+        },
+        {
+          plugin: "raw",
+          setup: [
+            "size",
+            "",
+            {
+              tag: "input",
+              width: "150px",
+              class: "w3-bar-item w3-input w3-border w3-round-xlarge",
+              placeholder: "📏 Tamaño tablero (n)",
+              style: "margin:4px;font-family:FontAwesome, Arial, Verdana, sans-serif;"
+            }
+          ]
+        },
+        {
+          plugin: "raw",
+          setup: [
+            "R",
+            "",
+            {
+              tag: "input",
+              width: "150px",
+              class: "w3-bar-item w3-input w3-border w3-round-xlarge",
+              placeholder: "🔴 Jugador rojo (ej. G1C, rand1)",
+              style: "margin:4px;font-family:FontAwesome, Arial, Verdana, sans-serif;"
+            }
+          ]
+        },
+        {
+          plugin: "raw",
+          setup: [
+            "R_time",
+            "⏱ Rojo",
+            {
+              width: "120px",
+              class: "w3-bar-item w3-input w3-border w3-round-xlarge",
+              style: "margin:4px;text-align:center;font-family:Arial;"
+            }
+          ]
+        },
+        {
+          plugin: "raw",
+          setup: [
+            "Y",
+            "",
+            {
+              tag: "input",
+              width: "150px",
+              class: "w3-bar-item w3-input w3-border w3-round-xlarge",
+              placeholder: "🟡 Jugador amarillo (ej. rand2, G1C)",
+              style: "margin:4px;font-family:FontAwesome, Arial, Verdana, sans-serif;"
+            }
+          ]
+        },
+        {
+          plugin: "raw",
+          setup: [
+            "Y_time",
+            "⏱ Amarillo",
+            {
+              width: "120px",
+              class: "w3-bar-item w3-input w3-border w3-round-xlarge",
+              style: "margin:4px;text-align:center;font-family:Arial;"
+            }
+          ]
+        },
+        {
+          plugin: "btn",
+          setup: [
+            "play",
+            "fa-play",
+            "",
+            null,
+            { title: "Iniciar partida", class: "w3-right w3-green w3-round-large" }
+          ]
+        }
+      ];
+
+      Konekti.navbar(
+        "navbar",
+        controles,
+        { client: "client", method: "play" },
+        { class: "w3-black w3-medium" }
+      );
+
+      // =============================
+      // Lienzo donde se dibuja el tablero
+      // =============================
+      const comandos = custom_commands();
+      Konekti.canvas("canvas", {}, comandos, {
+        width: "100%",
+        height: "fit"
+      });
+
+      console.log("🧩 Interfaz Konekti cargada correctamente.");
+    }
+  </script>
+
+  <style>
+    body {
+      background: #f4f4f4;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #title {
+      padding: 16px;
+    }
+
+    #log {
+      margin: 10px auto;
+      font-size: 18px;
+      color: #333;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #canvas {
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- El contenido dinámico será generado automáticamente por KonektiMain() -->
+</body>
+</html>

@@ -1,0 +1,64 @@
+# =====================================================
+# Cuadrito UNAL – Equipo Arazaca
+# Archivo: .gitignore
+# Evita subir archivos temporales o innecesarios al repo
+# =====================================================
+
+# Archivos de compilación y caché de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dll
+
+# Archivos de entorno virtual
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+
+# Archivos de configuración local
+*.log
+*.env
+*.ini
+*.cfg
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de VS Code
+.vscode/
+*.code-workspace
+
+# Archivos temporales o de prueba
+*.tmp
+*.bak
+*.swp
+
+# Archivos de pytest o cachés de testing
+.pytest_cache/
+.coverage
+.tox/
+htmlcov/
+
+# Archivos de FastAPI / Uvicorn (logs o cache)
+*.pid
+*.db
+*.sqlite3
+
+# Archivos de builds o distribuciones
+build/
+dist/
+*.egg-info/
+
+# Archivos de Docker (si llegas a usarlo)
+*.dockerfile
+docker-compose.yml
+
+# Archivos ZIP o RAR de entregas
+*.zip
+*.rar
