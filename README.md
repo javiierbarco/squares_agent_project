@@ -60,7 +60,7 @@ squares_agent_project/
 
 ### 1️⃣ Clonar el repositorio
 ```bash
-git clone <URL_DE_TU_REPOSITORIO>
+git clone https://github.com/javiierbarco/squares_agent_project
 cd squares_agent_project
 ```
 
