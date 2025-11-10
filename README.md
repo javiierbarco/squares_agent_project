@@ -1,4 +1,4 @@
-# 🎮 Cuadrito UNAL – Juego de Agentes Inteligentes (Equipo G1C)
+# 🎮 Cuadrito UNAL – Juego de Agentes Inteligentes (Equipo Arazaca)
 
 ### Universidad Nacional de Colombia  
 **Proyecto académico – Curso: Sistemas Inteligentes (2025-II)**  
