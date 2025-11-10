@@ -20,9 +20,25 @@
   <script src="/static/squares.js"></script>
 
   <!-- ============================= -->
-  <!-- Agente Inteligente G1C (tu versión JS) -->
+  <!-- Agente Inteligente Arazaca (tu versión JS) -->
   <!-- ============================= -->
   <script src="/static/smart_agent.js"></script>
+  <!-- ============================= -->
+  <!-- Agente prueba  -->
+  <!-- ============================= -->
+  <script src="/static/minimini_agent.js"></script>
+    <!-- ============================= -->
+  <!-- Agente Pro  -->
+  <!-- ============================= -->
+  <script src="/static/alpha_edge_agent.js"></script>
+
+  <script src="/static/arazaca_pro_agent.js"></script>
+  <script src="/static/arazaca_ultra.js"></script>
+  <script src="/static/arazaca_dominus.js"></script>
+
+
+
+  <script src="/static/ArazacaPre.js"></script>
 
   <!-- ============================= -->
   <!-- Configuración e interfaz Konekti -->
@@ -38,14 +54,20 @@
       client.setPlayers({
         rand1: new RandomPlayer(),
         rand2: new RandomPlayer(),
-        G1C: new SmartAgent() // 👈 tu agente inteligente
+        Arazaca: new ArazacaAgent(), 
+        MiniMini: new MiniMiniAgent(),
+        Alpha:   new AlphaEdgeAgent({ baseDepth: 2, maxDepth: 6, timeSlice: 220 }),
+        ArazacaPro: new ArazacaProAgent({ baseDepth: 2, maxDepth: 7, timeSlice: 320 }),
+        ArazacaPre: new ArazacaPre(),
+        ArazacaUltra: new ArazacaUltra({ baseDepth: 2, maxDepth: 6, timeSlice: 320 }),
+        Dominus: new ArazacaDominusAgent({ baseDepth: 2, maxDepth: 7, timeSlice: 320 })
       });
 
       // Encabezado
       Konekti.header(
         "title",
         "",
-        "🎮 Cuadrito UNAL – Juego de Agentes Inteligentes (Equipo G1C)",
+        "🎮 Cuadrito UNAL – Juego de Agentes Inteligentes (Equipo Arazaca)",
         3,
         { class: "w3-black w3-center" }
       );

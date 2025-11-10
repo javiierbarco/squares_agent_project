@@ -1,103 +1,152 @@
 /*
-smart_agent.js
-==============
+ArazacaAgent.js
+===============
 
-Agente inteligente (SmartAgent - Equipo Arazaca) para el juego Cuadrito (Dots and Boxes).
+Agente inteligente (Arazaca – Minimax + α-β pruning optimizado)
+para el juego Cuadrito (Dots and Boxes).
 
-Estrategia:
------------
-1️⃣ Prioriza cerrar cuadros (maximiza su puntuación)
-2️⃣ Evita dejar casillas con 3 lados (riesgo de regalar punto)
-3️⃣ Desempata prefiriendo movimientos en los bordes
-
-Basado en la versión Python del equipo G1C.
-
-Autor: Equipo Arazaca – UNAL
-Fecha: 2025
+Autor: Equipo Arazaca – UNAL 2025
 */
 
-class SmartAgent extends Agent {
-    constructor() {
-        super();
-        this.ops = new Board();  // Motor auxiliar para simular jugadas
-        this.ply = null;         // código interno del jugador
-        this.opp = null;         // código interno del oponente
-    }
+class ArazacaAgent extends Agent {
+  constructor(maxDepth = 4) {
+    super();
+    this.ops = new Board();
+    this.maxDepth = maxDepth;
+    this.ply = null;
+    this.opp = null;
+  }
 
-    init(color, board, time = 20000) {
-        super.init(color, board, time);
-        this.ply = (color === 'R') ? -1 : -2;
-        this.opp = (color === 'R') ? -2 : -1;
-    }
+  init(color, board, time = 20000) {
+    super.init(color, board, time);
+    this.ply = color === "R" ? -1 : -2;
+    this.opp = color === "R" ? -2 : -1;
+  }
 
-    // ----------------------------------------------------------------------
-    // Funciones auxiliares de evaluación
-    // ----------------------------------------------------------------------
+  // ---------- utilidades ----------
+  cloneBoard(b) {
+    return this.ops.clone(b);
+  }
 
-    countColor(b, code) {
-        let n = 0;
-        for (let i = 0; i < b.length; i++) {
-            for (let j = 0; j < b.length; j++) {
-                if (b[i][j] === code) n++;
-            }
+  countColor(b, code) {
+    let n = 0;
+    for (let i = 0; i < b.length; i++)
+      for (let j = 0; j < b.length; j++)
+        if (b[i][j] === code) n++;
+    return n;
+  }
+
+  countThreeSides(b) {
+    let n = 0;
+    for (let i = 0; i < b.length; i++)
+      for (let j = 0; j < b.length; j++) {
+        const v = b[i][j];
+        if (v >= 0) {
+          const bits =
+            ((v & 1) ? 1 : 0) +
+            ((v & 2) ? 1 : 0) +
+            ((v & 4) ? 1 : 0) +
+            ((v & 8) ? 1 : 0);
+          if (bits === 3) n++;
         }
-        return n;
+      }
+    return n;
+  }
+
+  evaluate(before, after) {
+    const myGain =
+      this.countColor(after, this.ply) - this.countColor(before, this.ply);
+    const oppGain =
+      this.countColor(after, this.opp) - this.countColor(before, this.opp);
+    const gain = myGain - oppGain;
+    const risk =
+      this.countThreeSides(after) - this.countThreeSides(before);
+    return 1000 * gain - 6 * risk;
+  }
+
+  // ---------- minimax con α-β ----------
+  minimax(board, depth, alpha, beta, maximizing, depthLimit = this.maxDepth) {
+    if (depth >= depthLimit) return this.evaluate(this.initialBoard, board);
+
+    const moves = this.ops.valid_moves(board);
+    if (moves.length === 0) return this.evaluate(this.initialBoard, board);
+
+    if (maximizing) {
+      let value = -Infinity;
+      for (const move of moves) {
+        const [i, j, s] = move;
+        const b2 = this.cloneBoard(board);
+        const ok = this.ops.move(b2, i, j, s, this.ply);
+        if (!ok) continue;
+        const val = this.minimax(b2, depth + 1, alpha, beta, false, depthLimit);
+        value = Math.max(value, val);
+        alpha = Math.max(alpha, val);
+        if (beta <= alpha) break; // poda beta
+      }
+      return value;
+    } else {
+      let value = Infinity;
+      for (const move of moves) {
+        const [i, j, s] = move;
+        const b2 = this.cloneBoard(board);
+        const ok = this.ops.move(b2, i, j, s, this.opp);
+        if (!ok) continue;
+        const val = this.minimax(b2, depth + 1, alpha, beta, true, depthLimit);
+        value = Math.min(value, val);
+        beta = Math.min(beta, val);
+        if (beta <= alpha) break; // poda alpha
+      }
+      return value;
+    }
+  }
+
+  // ---------- decisión principal ----------
+  compute(board, time) {
+    const moves = this.ops.valid_moves(board);
+    if (moves.length === 0) return [0, 0, 0];
+    this.initialBoard = this.cloneBoard(board);
+
+    // --- control de profundidad dinámico ---
+    const n = board.length;
+    if (n >= 12) this.maxDepth = 2;
+    else if (n >= 8) this.maxDepth = 3;
+    else this.maxDepth = 4;
+
+    let bestMove = moves[0];
+    let bestScore = -Infinity;
+
+    const startTime = Date.now();
+    const maxMillis = Math.min(time, 3000); // nunca más de 3 seg por jugada
+
+    for (const move of moves) {
+      if (Date.now() - startTime > maxMillis) break; // corte por tiempo
+
+      const [i, j, s] = move;
+      const b2 = this.cloneBoard(board);
+      const ok = this.ops.move(b2, i, j, s, this.ply);
+      if (!ok) continue;
+
+      const depthLimit = moves.length < 30 ? this.maxDepth : this.maxDepth - 1;
+      const val = this.minimax(b2, 1, -Infinity, Infinity, false, depthLimit);
+
+      const edgeBonus =
+        i === 0 || j === 0 || i === b2.length - 1 || j === b2.length - 1
+          ? 0.3
+          : 0;
+      const totalScore = val + edgeBonus;
+
+      if (totalScore > bestScore) {
+        bestScore = totalScore;
+        bestMove = move;
+      }
     }
 
-    countThreeSides(b) {
-        // Cuenta casillas con exactamente 3 lados marcados
-        let n = 0;
-        for (let i = 0; i < b.length; i++) {
-            for (let j = 0; j < b.length; j++) {
-                const v = b[i][j];
-                if (v >= 0) {
-                    const bits = ((v & 1) ? 1 : 0) + ((v & 2) ? 1 : 0) + ((v & 4) ? 1 : 0) + ((v & 8) ? 1 : 0);
-                    if (bits === 3) n++;
-                }
-            }
-        }
-        return n;
-    }
-
-    evaluate(before, after) {
-        // Heurística: puntos propios - riesgo de tres lados
-        const myGain = this.countColor(after, this.ply) - this.countColor(before, this.ply);
-        const oppGain = this.countColor(after, this.opp) - this.countColor(before, this.opp);
-        const gain = myGain - oppGain;
-
-        const riskDelta = this.countThreeSides(after) - this.countThreeSides(before);
-
-        return 1000 * gain - 5 * riskDelta;
-    }
-
-    // ----------------------------------------------------------------------
-    // Método principal: decide el movimiento
-    // ----------------------------------------------------------------------
-
-    compute(board, time) {
-        const moves = this.ops.valid_moves(board);
-        if (moves.length === 0) return [0, 0, 0];
-
-        let bestMove = moves[0];
-        let bestScore = -Infinity;
-
-        for (let k = 0; k < moves.length; k++) {
-            const [i, j, s] = moves[k];
-            const b2 = this.ops.clone(board);
-            const ok = this.ops.move(b2, i, j, s, this.ply);
-            if (!ok) continue;
-
-            let score = this.evaluate(board, b2);
-
-            // Pequeña bonificación si está en borde
-            if (i === 0 || j === 0 || i === b2.length - 1 || j === b2.length - 1) score += 1;
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = moves[k];
-            }
-        }
-
-        return bestMove;
-    }
+    console.log(
+      `[Arazaca] depth=${this.maxDepth}, moves=${moves.length}, bestScore=${bestScore}`
+    );
+    return bestMove;
+  }
 }
+
+// ---------- export ----------
+window.ArazacaAgent = ArazacaAgent;
